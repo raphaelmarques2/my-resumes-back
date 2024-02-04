@@ -13,10 +13,11 @@ These are the main technologies used on this project:
 - NestJS
 - Jest
 - Supertest
-- Postgres
+- PostgreSQL
 - Prisma
 - Zod
 - Docker
+- Vercel (Deployed with GitHub Actions)
 
 ## Architecture and Modules
 
