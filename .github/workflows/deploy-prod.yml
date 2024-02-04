@@ -21,6 +21,9 @@ jobs:
       - name: Test
         run: npm run test:unit
 
+      - name: Migrate Database
+        run: DATABASE_URL=${{ secrets.MIGRATE_DATABASE_URL }} npm run prisma:migrate:deploy
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
