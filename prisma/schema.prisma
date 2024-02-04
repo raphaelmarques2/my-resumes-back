@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
+
+  profiles              Profile[]
+  experiences           Experience[]
+  resumes               Resume[]
+  credential            UserCredential?
+  educations            Education[]
+  resetPasswordRequests ResetPasswordRequest[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("user")
+}
+
+model UserCredential {
+  id       String @id @default(uuid())
+  password String
+
+  userId String @unique @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("user_credential")
+}
+
+model Profile {
+  id       String  @id @default(uuid())
+  name     String
+  email    String
+  address  String?
+  linkedin String?
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("profile")
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  title       String
+  company     String
+  description String
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  experienceToResumes ExperienceToResume[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("experience")
+}
+
+model Resume {
+  id          String @id @default(uuid())
+  name        String
+  title       String
+  description String
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  experienceToResumes ExperienceToResume[]
+  educationToResumes  EducationToResume[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("resume")
+}
+
+model ExperienceToResume {
+  id String @id @default(uuid())
+
+  order Int @default(0) //order of the experience in a resume
+
+  experienceId String     @map("experience_id")
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  resumeId String @map("resume_id")
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("experience_to_resume")
+}
+
+model EducationToResume {
+  id String @id @default(uuid())
+
+  order Int @default(0) //order of the education in a resume
+
+  educationId String    @map("education_id")
+  education   Education @relation(fields: [educationId], references: [id], onDelete: Cascade)
+
+  resumeId String @map("resume_id")
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("education_to_resume")
+}
+
+model Education {
+  id String @id @default(uuid())
+
+  title       String
+  institution String
+  startDate   DateTime? @map("start_date")
+  endDate     DateTime? @map("end_date")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @default(now()) @updatedAt() @map("updated_at")
+  EducationToResume EducationToResume[]
+
+  @@map("education")
+}
+
+model ResetPasswordRequest {
+  id String @id @default(uuid())
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique
+  active    Boolean
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt() @map("updated_at")
+
+  @@map("reset_password_request")
+}

@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "buildCommand": "npm install & npm run prisma:generate & npm run build",
+  "builds": [
+    {
+      "src": "dist/main.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "dist/main.js"
+    }
+  ]
+}
